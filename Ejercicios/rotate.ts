@@ -19,9 +19,3 @@ const matriz = [
 ];
 
 console.log(rotateMatrix(matriz));
-// Resultado esperado:
-// [
-//   [7, 4, 1],
-//   [8, 5, 2],
-//   [9, 6, 3]
-// ]

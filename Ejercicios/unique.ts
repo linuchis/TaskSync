@@ -14,7 +14,7 @@ export function uniqueUsers(list: User[]): User[] {
   return result;
 }
 
-// Prueba rápida
+
 const users: User[] = [
   { id: 1, name: "Ana" },
   { id: 2, name: "Carlos" },
@@ -22,5 +22,3 @@ const users: User[] = [
 ];
 
 console.log(uniqueUsers(users));
-// Resultado esperado:
-// [ { id: 1, name: "Ana" }, { id: 2, name: "Carlos" } ]
