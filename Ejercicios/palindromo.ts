@@ -1,19 +1,24 @@
+
+/**
+ * Determina si una palabra o frase es un palíndromo.
+ * Ignora mayúsculas, acentos (diacríticos) y espacios en blanco.
+ * * @param word - La cadena de texto a evaluar.
+ * @returns true si es palíndromo, false en caso contrario.
+ */
 export function isPalindrome(word: string): boolean {
-  // Normalizamos la palabra:
-  // - convertimos a minúsculas
-  // - eliminamos acentos
-  // - quitamos espacios
-  const clean = word
+  if (!word) return false; // Guard clause para strings vacíos
+
+  const cleanWord = word
     .toLowerCase()
-    .normalize("NFD")               // separa letra + acento
-    .replace(/[\u0300-\u036f]/g, "") // quita acentos
-    .replace(/\s+/g, "");            // quita espacios
+    .normalize("NFD")               // Descompone caracteres (ej: á -> a + ´)
+    .replace(/[\u0300-\u036f]/g, "") // Elimina los diacríticos
+    .replace(/[^a-z0-9]/g, "");      // Elimina todo lo que no sea alfanumérico (espacios, signos)
 
-  // Comparamos con su versión invertida
-  const reversed = clean.split("").reverse().join("");
-  return clean === reversed;
+  // O(N) - Invertimos y comparamos
+  const reversedWord = cleanWord.split("").reverse().join("");
+
+  return cleanWord === reversedWord;
 }
-
-// Prueba rápida
-console.log(isPalindrome("Anita lava la tina")); // true
-console.log(isPalindrome("Hola")); // false
+//ejemplos pa que salgan:
+// console.log(isPalindrome("Anita lava la tina")); // true
+// console.log(isPalindrome("Aman a Panamá")); // true

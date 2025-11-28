@@ -1,19 +1,30 @@
-type User = { id: number; name: string };
 
-export function uniqueUsers(list: User[]): User[] {
-  const seen = new Set<number>();
-  const result: User[] = [];
 
-  for (const user of list) {
-    if (!seen.has(user.id)) {
-      seen.add(user.id);
-      result.push(user);
-    }
-  }
-
-  return result;
+// Definimos la interfaz base requerida por el ejercicio
+interface EntityWithId {
+  id: number | string;
 }
 
+/**
+ * * @template T Tipo del objeto que extiende de EntityWithId
+ * @param list Lista de objetos a filtrar
+ * @returns Nueva lista sin duplicados
+ */
+export function uniqueItems<T extends EntityWithId>(list: T[]): T[] {
+  const seen = new Set<number | string>();
+  
+  // filter es más declarativo y "limpio" que un bucle for-of manual en este caso
+  return list.filter((item) => {
+    if (seen.has(item.id)) {
+      return false;
+    }
+    seen.add(item.id);
+    return true;
+  });
+}
+
+// Implementación específica para el ejercicio usando la función genérica
+type User = { id: number; name: string };
 
 const users: User[] = [
   { id: 1, name: "Ana" },
@@ -21,4 +32,8 @@ const users: User[] = [
   { id: 1, name: "Ana Duplicate" },
 ];
 
-console.log(uniqueUsers(users));
+export function uniqueUsers(list: User[]): User[] {
+    return uniqueItems(list);
+}
+
+// console.log(uniqueUsers(users));
