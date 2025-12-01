@@ -1,16 +1,22 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'; // Agregamos useState
+import React, { useEffect, useLayoutEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useTaskStore } from '../store/useTaskStore';
 import { RootStackParamList } from '../navigation/types';
+//  ESTE ES EL HOOK 
+import { useDelayedAction } from '../hooks/useDelayedAction';
+import { TaskItem } from '../components/TaskItem';
+
+
 import { registerForPushNotificationsAsync } from '../services/notificationService';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { tasks, toggleTask, deleteTask, fetchTasks, syncPendingTasks, isLoading } = useTaskStore();
 
-  // NUEVO: Estado local para manejar las tareas que están "esperando" desaparecer
-  const [tempCompletedIds, setTempCompletedIds] = useState<string[]>([]);
+  // 2. USAMOS EL HOOK AQUÍ (Reemplaza al useState y la función vieja handleDelayedComplete)
+  // "Cuando active el trigger, espera 5 seg y luego ejecuta toggleTask"
+  const { trigger: markCompletedLater, isPending } = useDelayedAction(toggleTask, 5000);
 
   // 1. Cargar tareas al abrir la app
   useEffect(() => {
@@ -35,59 +41,18 @@ export const HomeScreen = () => {
     Alert.alert('¡Listo!', 'Tus tareas están al día.');
   };
 
-  // NUEVO: Función con temporizador para tachar visualmente y borrar después
-  const handleDelayedComplete = (id: string | number) => {
-    const idString = id.toString();
-    
-    // 1. Agregamos el ID a la lista temporal (tachado visual instantáneo)
-    setTempCompletedIds((prev) => [...prev, idString]);
-
-    // 2. Esperamos 5 segundos
-    setTimeout(() => {
-      // 3. Ejecutamos el cambio real en la base de datos/store
-      toggleTask(id);
-      
-      // 4. Limpiamos la lista temporal (ya no hace falta porque el filtro de la lista la ocultará)
-      setTempCompletedIds((prev) => prev.filter((i) => i !== idString));
-    }, 5000);
-  };
-
-  const renderItem = ({ item }: { item: any }) => {
-    // NUEVO: Lógica para saber si se debe ver tachada (por BD o por estado temporal)
-    const isTempCompleted = tempCompletedIds.includes(item.id.toString());
-    const isVisuallyCompleted = item.isCompleted || isTempCompleted;
-
-    return (
-      <View style={styles.card}>
-        <TouchableOpacity 
-          style={[styles.check, isVisuallyCompleted && styles.checkCompleted]} 
-          // NUEVO: Usamos la función con delay en lugar de toggleTask directo
-          onPress={() => handleDelayedComplete(item.id)}
-          // Deshabilitamos para que no le den click muchas veces mientras espera
-          disabled={isVisuallyCompleted}
-        />
-        
-        {/* Al tocar el texto, vamos a Editar */}
-        <TouchableOpacity 
-          style={{ flex: 1 }} 
-          onPress={() => navigation.navigate('CreateTask', { 
-            taskId: item.id, 
-            currentTitle: item.title 
-          })}
-        >
-          {/* Aplicamos el estilo de tachado si está visualmente completada */}
-          <Text style={[styles.title, isVisuallyCompleted && styles.textCompleted]}>
-            {item.title}
-          </Text>
-          {item.needsSync && <Text style={styles.syncText}>⏳ Pendiente de subir</Text>}
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => deleteTask(item.id)}>
-          <Text style={styles.delete}>🗑</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  const renderItem = ({ item }: { item: any }) => (
+  <TaskItem
+    task={item}
+    isPending={isPending(item.id)} // Usamos tu hook aquí
+    onToggle={() => markCompletedLater(item.id)} // Usamos tu hook aquí
+    onDelete={() => deleteTask(item.id)}
+    onPress={() => navigation.navigate('CreateTask', { 
+      taskId: item.id, 
+      currentTitle: item.title 
+    })}
+  />
+);
 
   return (
     <View style={styles.container}>
@@ -99,10 +64,10 @@ export const HomeScreen = () => {
       )}
 
       {/* NOTA IMPORTANTE: 
-         Mantenemos el filtro !t.isCompleted. 
-         Como 'handleDelayedComplete' tarda 5 seg en cambiar 'isCompleted' a true en el store,
-         el item se seguirá renderizando esos 5 segundos (pero tachado gracias a nuestra lógica visual).
-         Una vez pasen los 5 seg, toggleTask corre, isCompleted se vuelve true, y este filtro lo saca.
+          Mantenemos el filtro !t.isCompleted. 
+          Como el hook tarda 5 seg en ejecutar toggleTask (que cambia isCompleted a true en el store),
+          el item se seguirá renderizando esos 5 segundos (pero tachado gracias a isPending).
+          Una vez pasen los 5 seg, toggleTask corre, isCompleted se vuelve true, y este filtro lo saca.
       */}
       {!isLoading && tasks.length === 0 ? (
         <View style={styles.emptyContainer}>
