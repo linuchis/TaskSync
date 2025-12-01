@@ -12,9 +12,20 @@ Este repositorio funciona como un monorepo con dos partes principales: `backend`
 * Dispositivo móvil con la app **Expo Go** instalada (o un emulador configurado).
 
 ### 1. Iniciar el Backend (Servidor)
+
+```bash
+cd backend
+npm install
+npm run dev
+``````
+
 > El servidor correrá en `http://localhost:3000` (o tu IP local).
 
 ### 2. Iniciar la App Móvil
+
+## 2.1 Instalar Expo en Android
+
+Se puede utilizar la última versión, la que se encuentra en PlayStore.
 
 ```bash
 cd backend
@@ -24,7 +35,14 @@ npm run dev
 
 El servidor correrá en http://localhost:3000 (o tu IP local).
 
+## 2.2 Iniciar App
+
 Escanea el código QR generado en la terminal con la aplicación Expo Go en tu celular (Android/iOS).
+
+```bash
+cd mobile
+npx expo start -c
+``````
 
 🛠 Decisiones Técnicas
 El desarrollo se guio por principios de agilidad y tipado estricto:
