@@ -11,7 +11,7 @@ Este repositorio funciona como un monorepo con dos partes principales: `backend`
 * npm
 * Dispositivo móvil con la app **Expo Go** instalada (o un emulador configurado).
 
-### 1. Iniciar el Backend (Servidor)
+## 1. Iniciar el Backend (Servidor)
 
 ```bash
 cd backend
@@ -21,9 +21,9 @@ npm run dev
 
 > El servidor correrá en `http://localhost:3000` (o tu IP local).
 
-### 2. Iniciar la App Móvil
+## 2. Iniciar la App Móvil
 
-## 2.1 Instalar Expo en Android
+### 2.1 Instalar Expo en Android
 
 Se puede utilizar la última versión, la que se encuentra en PlayStore.
 
@@ -35,7 +35,7 @@ npm run dev
 
 El servidor correrá en http://localhost:3000 (o tu IP local).
 
-## 2.2 Iniciar App
+### 2.2 Iniciar App
 
 Escanea el código QR generado en la terminal con la aplicación Expo Go en tu celular (Android/iOS).
 
@@ -68,19 +68,15 @@ Contiene la lógica del servidor Express, rutas y manejo de datos.
 Mobile (/src)
 Organizado por capas de responsabilidad:
 
-api/: Capa de conexión con el backend (Axios/Fetch). Centraliza las peticiones HTTP.
-
-navigation/: Configuración de rutas y navegación de la app (React Navigation).
-
-screens/: Vistas principales de la aplicación (UI y lógica de presentación).
-
-services/: Lógica de negocio pura y transformaciones de datos.
-
-store/: Gestión del estado global de la aplicación.
-
-types/: Definiciones de interfaces y tipos TypeScript compartidos.
-
-assets/: Recursos estáticos (imágenes, iconos).
+api/: 
+navigation/: 
+screens/: 
+services/: 
+store/: 
+types/: 
+assets/: 
+hooks/:
+components/:
 
 ### 📱 Funcionalidad Nativa
 La aplicación hace uso de capacidades nativas del dispositivo a través de las APIs de Expo:
