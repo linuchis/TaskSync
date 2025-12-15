@@ -44,6 +44,24 @@ cd mobile
 npx expo start -c
 ``````
 
+
+### 2.3 ⚠️ IMPORTANTE: Configuración de Conexión (Evitar Network Error)
+
+Para que la aplicación móvil pueda comunicarse con el backend local, **es obligatorio** actualizar la dirección IP en el código cliente.
+
+1.  Abra una terminal y consulte su IP local:
+    * Windows: `ipconfig` (Busque IPv4 Address)
+    * Mac/Linux: `ifconfig`
+2.  Vaya al archivo: `mobile/src/api/client.ts`
+3.  Modifique la variable `BASE_URL`:
+    ```typescript
+    // Reemplace '192.168.X.X' con SU dirección IP local actual
+    const BASE_URL = '[http://192.168.1.50:3000](http://192.168.1.50:3000)'; 
+    ```
+4.  Asegúrese de que su dispositivo móvil y su PC estén conectados a la misma red Wi-Fi.
+
+> **Nota:** Si recibe un error de conexión, verifique que el Firewall de su sistema operativo permita conexiones entrantes al puerto 3000.
+
 🛠 Decisiones Técnicas
 El desarrollo se guio por principios de agilidad y tipado estricto:
 
