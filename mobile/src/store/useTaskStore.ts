@@ -7,6 +7,7 @@ import { tasksApi } from '../api/tasksApi';
 interface TaskState {
   tasks: Task[];
   isLoading: boolean;
+  error: string | null;
   fetchTasks: () => Promise<void>;
   addTask: (title: string) => Promise<void>; // Actualizado a Promise
   toggleTask: (id: number | string) => void;
@@ -20,6 +21,7 @@ export const useTaskStore = create<TaskState>()(
     (set, get) => ({
       tasks: [],
       isLoading: false,
+      error: null,
 
       fetchTasks: async () => {
         set({ isLoading: true });

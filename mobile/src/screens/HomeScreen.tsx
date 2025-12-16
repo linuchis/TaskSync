@@ -6,13 +6,14 @@ import { RootStackParamList } from '../navigation/types';
 //  ESTE ES EL HOOK 
 import { useDelayedAction } from '../hooks/useDelayedAction';
 import { TaskItem } from '../components/TaskItem';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 import { registerForPushNotificationsAsync } from '../services/notificationService';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { tasks, toggleTask, deleteTask, fetchTasks, syncPendingTasks, isLoading } = useTaskStore();
+  const { tasks, toggleTask, deleteTask, fetchTasks, syncPendingTasks, isLoading, error } = useTaskStore();
 
   // 2. USAMOS EL HOOK AQUÍ (Reemplaza al useState y la función vieja handleDelayedComplete)
   // "Cuando active el trigger, espera 5 seg y luego ejecuta toggleTask"
@@ -55,26 +56,35 @@ export const HomeScreen = () => {
 );
 
   return (
-    <View style={styles.container}>
-      {isLoading && (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color="#6200ee" />
-          <Text>Cargando...</Text>
-        </View>
-      )}
+    // Cambiamos el View principal por un fondo gris muy clarito para contraste
+    <View style={[styles.container, { backgroundColor: '#F5F7FA' }]}>
+      
+      <LinearGradient
+        // Puedes jugar con estos colores: morado a azul
+        colors={['#c42c73ff', '#b72fdaff']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>Mis Tareas 📝</Text>
+      </LinearGradient>
 
-      {/* NOTA IMPORTANTE: 
-          Mantenemos el filtro !t.isCompleted. 
-          Como el hook tarda 5 seg en ejecutar toggleTask (que cambia isCompleted a true en el store),
-          el item se seguirá renderizando esos 5 segundos (pero tachado gracias a isPending).
-          Una vez pasen los 5 seg, toggleTask corre, isCompleted se vuelve true, y este filtro lo saca.
-      */}
-      {!isLoading && tasks.length === 0 ? (
+      {/* El resto de tu lógica (Loading/Error) sigue aquí... */}
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#6a11cb" style={styles.center} />
+      ) : error ? (
+        <Text style={[styles.errorText, styles.center]}>{error}</Text>
+      ) : tasks.filter(t => !t.isCompleted).length === 0 ? (
+        
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No tienes tareas pendientes.</Text>
+          {/* Un emoji gigante ayuda mucho */}
+          <Text style={{ fontSize: 60, marginBottom: 20 }}>🎉</Text> 
+          <Text style={styles.emptyTextTitle}>¡Todo listo por hoy!</Text>
+          <Text style={styles.emptyTextSubtitle}>No tienes tareas pendientes. Disfruta tu día.</Text>
         </View>
+
       ) : (
-        <FlatList
+          <FlatList
           data={tasks.filter(t => !t.isCompleted)}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
@@ -90,48 +100,72 @@ export const HomeScreen = () => {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 10 },
-  loader: { padding: 20, alignItems: 'center' },
-  card: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    alignItems: 'center',
-    elevation: 2,
+  container: {
+    flex: 1,
+    // Quitamos el padding del contenedor principal para que el header toque los bordes
   },
-  check: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#6200ee',
-    marginRight: 15,
+  header: {
+    // El header ahora tiene padding interno y bordes redondeados abajo
+    paddingTop: 60, // Espacio para la barra de estado
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 20,
+    elevation: 5, // Sombra en Android
   },
-  checkCompleted: { backgroundColor: '#6200ee' },
-  title: { fontSize: 16, color: '#333' },
-  textCompleted: { textDecorationLine: 'line-through', color: '#888' },
-  syncText: { fontSize: 10, color: 'orange', marginTop: 4 },
-  delete: { fontSize: 20, color: 'red', marginLeft: 10 },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { color: '#888', fontSize: 16 },
-  fab: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#6200ee',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '800', // Letra más gordita
+    color: 'white', // Texto blanco sobre el degradado
+  },
+  center: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
+  emptyTextTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  emptyTextSubtitle: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 30,
+    backgroundColor: '#6a11cb', // Morado a juego con el tema
+    borderRadius: 30,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  errorText: { 
+    color: 'red', 
+    fontSize: 16,
+    textAlign: 'center'
+  }, // (Tu estilo de error)
   fabText: { color: 'white', fontSize: 30, marginTop: -2 },
 });

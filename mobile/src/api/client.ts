@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
 // ⚠️ REEMPLAZA '192.168.1.X' CON TU IP LOCAL
-const BASE_URL = 'http://192.168.20.35:3000';
+const BASE_URL = 'http://192.168.14.51:3000';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
